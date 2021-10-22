@@ -1,0 +1,74 @@
+# Test file for Genesis V4 at PITZ
+
+&setup
+  rootname = test
+  lattice = gen4lat.lat
+  beamline = tunnel
+  gamma0 = 33.283196
+  lambda0 = 100e-6
+  delz = 15e-3
+  seed = 2011
+  npart = 8192
+  nbins = 4
+  one4one = false
+  shotnoise = true
+&end
+
+&time
+  s0 = 0.0
+  slen = 5e-3
+  # slen = 100e-6
+  sample = 1
+  time = true
+&end
+
+# BUG broken
+#&profile_step
+#  label = flattop
+#  c0 = 150.0
+#  s_start = 0.0
+#  s_end = 1.0e-3
+#&end
+
+&profile_gauss
+  label = beampro
+  c0 = 150.0
+  s0 = 2.5e-3
+  sig = 1e-3
+&end
+
+
+&beam
+  gamma = 33.283196
+  delgam = 0.166416
+  current = @beampro
+  ex = 4e-6
+  ey = 4e-6
+  #betax = 0.600625
+  #betay = 0.0225
+  betax = 19.9907195975
+  betay = 0.7488719
+  alphax = 10.93
+  alphay = 3.25
+  bunch = 0
+  emod = 0
+&end
+
+&field
+#  lambda = 0
+  power = 0
+  phase = 0
+  dgrid = 20e-3
+  ngrid = 201
+&end
+
+#&wake
+#  loss = 0
+#&end
+
+&track
+#  zstop = 1000
+  output_step = 1
+  field_dump_step = 0
+  beam_dump_step = 5
+&end

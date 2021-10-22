@@ -1,0 +1,45 @@
+&setup 
+ rootname=test
+ lattice=gen4lat.lat
+ beamline=tunnel
+ gamma0=33.28319610805032
+ lambda0=0.0001
+ delz=0.015
+ seed=1
+ npart=8192
+ nbins=4
+ one4one=false
+ shotnoise=true
+&end
+
+&time 
+ s0=0
+ slen=0.005
+ sample=1
+ time=true
+&end
+
+&profile_step 
+ label=beampro
+ c0=150.0
+ s_start=0.0
+ s_end=0.005
+&end
+
+&importbeam 
+ file=test.0.par.h5
+&end
+
+&field 
+ power=0
+ phase=0
+ dgrid=0.02
+ ngrid=201
+&end
+
+&track 
+ output_step=1
+ field_dump_step=0
+ beam_dump_step=0
+&end
+

@@ -1,0 +1,23 @@
+&INPUT 
+ FNAME='beam.ini'
+ IPART=10000
+ SPECIES='electrons'
+ Q_TOTAL=-0.1
+ REF_EKIN=0.0
+ LE=0.00055
+ DIST_PZ='i'
+ DIST_Z='p'
+ LT=0.0215
+ RT=0.002
+ CATHODE=True
+ DIST_X='r'
+ SIG_X=0.25
+ DIST_PX='g'
+ NEMIT_X=0
+ DIST_Y='r'
+ SIG_Y=0.25
+ DIST_PY='g'
+ NEMIT_Y=0
+ LPROMPT=False
+&END
+

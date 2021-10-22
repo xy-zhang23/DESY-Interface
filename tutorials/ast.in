@@ -1,0 +1,57 @@
+&APERTURE 
+ LAPERT=True
+ FILE_APERTURE(1)='..\examples\field-maps\app1.txt'
+&END
+
+&OUTPUT 
+ ZSTART=0
+ ZSTOP=5.28
+ ZEMIT=200
+ ZPHASE=2
+ REFS=True
+ EMITS=True
+ PHASES=True
+ TRACKS=True
+ LANDFS=True
+&END
+
+&SOLENOID 
+ LBFIELD=True
+ FILE_BFIELD(1)='..\examples\field-maps\gunsolenoidsPITZ.txt'
+ MAXB=-0.21877319999999997
+ S_POS(1)=0.0
+&END
+
+&CAVITY 
+ LEFIELD=True
+ FILE_EFIELD(1)='..\examples\field-maps\gun42cavity.txt'
+ FILE_EFIELD(2)='..\examples\field-maps\CDS14_15mm.txt'
+ MAXE(1)=60
+ MAXE(2)=12.0
+ C_POS(1)=0.0
+ C_POS(2)=2.675
+ NUE(1)=1.3
+ NUE(2)=1.3
+ PHI(1)=0
+ PHI(2)=0
+&END
+
+&CHARGE 
+ LSPCH=True
+ NRAD=50
+ NLONG_IN=50
+ N_MIN=10
+ MAX_SCALE=0.05
+ MAX_COUNT=20
+&END
+
+&NEWRUN 
+ RUN=1
+ HEAD='PITZ beam line simulation'
+ DISTRIBUTION='beam.ini'
+ AUTO_PHASE=True
+ TRACK_ALL=False
+ CHECK_REF_PART=False
+ LPROMPT=False
+&END
+

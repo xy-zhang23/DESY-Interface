@@ -1,0 +1,5 @@
+lcls: undulator = {aw = 2.535313, lambdau = 30e-3, nwig = 113, helical = false, kx = 0, ky = 1, ax = 0, ay = 0, gradx = 0, grady = 0};
+pipe: drift = {l = 0.005};
+screen: marker = {dumpfield = 1, dumpbeam = 1, stop = 1};
+
+tunnel: line = {21*pipe, lcls, 21*pipe, screen};
