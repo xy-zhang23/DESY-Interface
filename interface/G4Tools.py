@@ -37,7 +37,8 @@ def astra2hdf5(inputName = None, inputDist = None, outputName = None, ext = '.h5
         data[1:,5] += data[0,5]
         if outputName == None:
             path, base, _ = fileparts(inputName)
-            outputName = path+os.sep+base+ext 
+            #outputName = path+os.sep+base+ext 
+            outputName = inputName+ext
     elif inputDist != None:
         data = inputDist[:,0:6]
         if outputName == None:
@@ -50,10 +51,13 @@ def astra2hdf5(inputName = None, inputDist = None, outputName = None, ext = '.h5
     x, y, z = data[:,0:3].T[:]
     t = z/g_c
     
+    tminps, tmaxps = t.min()*1e12, t.max()*1e12
+    print('Bunch length in ps: ', tmaxps-tminps)
+    
     Px, Py, Pz = data[:,3:6].T[:]
     xp = Px/Pz
     yp = Py/Pz
-    p = np.sqrt(Px**2+Py**2+Pz**2)/1e6/g_mec2
+    p = np.sqrt(1+(Px**2+Py**2+Pz**2)/1e12/g_mec2/g_mec2) # gamma
     
     f = h5py.File(outputName, 'w')
     

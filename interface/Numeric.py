@@ -362,10 +362,10 @@ try:
         
         from PIL import Image
         
-        if in_fig == None:
+        if in_fig is None:
             in_fig = get_file()
         
-        if out_format == None:
+        if out_format is None:
             out_format = '.png'
         [path, name, ext] = fileparts(in_fig)
         print(r''+path)
@@ -498,7 +498,7 @@ def weighted_sum(x, weights = None, axis = 0, returned = False):
     Returns
       sum_x: sum of the samples
     '''
-    if weights == None:
+    if weights is None:
         sum_w = np.sum(x == x, axis = axis)
         #sum_w = sum_w[0]
         sum_x = np.sum(x, axis = axis)
@@ -551,7 +551,7 @@ def weighted_cov(x, y = None, weights = None, axis = 0, returned = False):
     Returns
       <x*y>: covariance of x and y
     '''
-    if y == None:
+    if y is None:
         y = x
     xc, sum_w = weighted_mean(x, weights = weights, axis = axis, returned = True)
     yc, sum_w = weighted_mean(y, weights = weights, axis = axis, returned = True)

@@ -21,6 +21,41 @@ dist = pd_loadtxt(fname)
 dist[0,2] = 0
 dist[1:,5] += dist[0,5]
 
+match = 1
+ex=4e-06
+ey=4e-06
+betax=19.99072
+betay=0.74887
+alphax=10.93
+alphay=3.25
+gammax, gammay = (1+alphax**2)/betax, (1+alphay**2)/betay
+
+diag = BeamDiagnostics(dist = dist); diag.demo()
+#%%
+if match:
+    
+    bx, by, ax, ay = diag.beta_x, diag.beta_y, diag.alpha_x, diag.alpha_y
+    px = dist[:,3]/dist[:,5] # px->xp
+    py = dist[:,4]/dist[:,5] # py->yp
+    
+    px += (ax/bx)*dist[:,0]
+    py += (ay/by)*dist[:,1]
+    
+    dist[:,0] *= np.sqrt(betax/bx)
+    dist[:,1] *= np.sqrt(betay/by)
+    
+    px *= np.sqrt(bx/betax)
+    py *= np.sqrt(by/betay)
+    
+    px -= (alphax/betax)*dist[:,0]
+    py -= (alphay/betay)*dist[:,1]
+    
+    dist[:,3] = px*dist[:,5]
+    dist[:,4] = py*dist[:,5]
+    
+diag = BeamDiagnostics(dist = dist); diag.demo()
+#%%
+
 # Convert from ev/C to unitless momentum for px and py and 
 # from ev/C to gamma for pz
 dist[:,3:6] /= (g_mec2*1e6)
@@ -122,7 +157,7 @@ _ = fout.create_dataset('slicespacing',
 fout.close()
 stat = np.array(stat)
 
-# Plot
+#%% Plot
 fig, ax = plt.subplots(nrows = 2, sharex = True, figsize = (6, 4))
 ax[0].plot(stat[:,0]*sliceLength*1e3, stat[:,2], '-')
 ax[0].set_ylabel(r'Current (A)')
@@ -147,7 +182,9 @@ for axis in ax:
 import h5py
 import numpy.random as rd
 
-f = h5py.File('test1.0.par.h5', 'r')
+from interface import *
+
+f = h5py.File('test.10.0.par.h5', 'r')
 
 # General setting for the slices
 keys = ['beamletsize', 'one4one', 'refposition',
@@ -157,6 +194,7 @@ for key in keys:
     print(a[:])
 
 sliceLength = f.get('slicelength')[0]
+nslice = f.get('slicecount')[0]
 
 stat = []
 for i in np.arange(nslice):
@@ -169,6 +207,7 @@ for i in np.arange(nslice):
     px = f[name+'/px'][:]
     py = f[name+'/py'][:]
     gamma = f[name+'/gamma'][:]
+    gamma0 = np.mean(gamma)
     
     current = f[name+'/current'][0]
     charge = current*sliceLength/g_c
@@ -179,7 +218,8 @@ for i in np.arange(nslice):
     else:
         bf2, bf2_mean = 0, 0
     
-    stat.append([i, charge, current, bf2, bf2_mean])
+    stat.append([i, charge, current, bf2, bf2_mean, gamma0])
         
 f.close()
 stat = np.array(stat)
+

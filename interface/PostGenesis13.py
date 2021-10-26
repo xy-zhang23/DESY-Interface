@@ -70,14 +70,14 @@ class PostGenesis13:
         '''
         
         debug = 0
+        self.fieldname = 'Field'
         if len(kwargs)>0:
             if 'debug' in kwargs.keys():
                 debug = kwargs['debug']    
             if 'harmonic' in kwargs.keys():
                 harmonic = kwargs['harmonic']
                 self.fieldname = 'Field%d' % harmonic
-            else:
-                self.fieldname = 'Field'
+                
                 
         if fname is None:
             fname = get_file('.h5'); print(fname)
