@@ -8,9 +8,33 @@ Interfaces for Generator, Astra and Genesis version 2 and 4, and so on
 import numpy as np
 import subprocess
 
+try:
+    from requests.structures import CaseInsensitiveDict
+    ADict = CaseInsensitiveDict
+except Exception as err:
+    print(err)
+    ADict = dict
+
 from .Job import *
 
-class Namelist:
+def toStr(v):
+    '''
+    Convert the input argument to string.
+    Parameters:
+      v: any type
+    Returns:
+      str: string
+    '''
+    t = type(v)
+    if t == str:
+        v = v
+    elif isinstance(v, (bool, np.bool_)):
+        v = '{}'.format(v)
+    elif isinstance(v, (int, float, np.integer, np.floating)):
+        v = '{:.7g}'.format(v)
+    return v
+  
+class Namelist():
     '''
     Namelist used in Astra: newrun, output, scan, modules, error, charge, aperture,
                       wake, cavity, solenoid, quadrupole, dipole, laser
@@ -25,7 +49,8 @@ class Namelist:
           newrun.set(Run = 2, Track_all = False)
     '''
     starter = '&'
-    ending = '&END'
+    ending = '&end'
+    case = ''
     
     def __init__(self, name = 'Input', **kwargs):
         '''
@@ -33,11 +58,8 @@ class Namelist:
           name: name of the namelist, e.g., 'Input', 'Newrun', case insensitive
           **kwargs: key value pairs defining the properties of the `Namelist`
         '''
-        self.name = name.upper()
-        self.kv = {}
-        for key, value in kwargs.items():
-            self.kv.update({key.upper():value})
-        self.update()
+        self.kv = ADict()
+        self.set(name, **kwargs)
         
     def set(self, *args, **kwargs):
         '''
@@ -51,9 +73,14 @@ class Namelist:
         None.
         '''
         if len(args)>0:
-            self.name = args[0].upper()
-        for key, value in kwargs.items():
-            self.kv.update({key.upper():value})
+            self.name = args[0]
+            
+        if ADict == dict:
+            for key, value in kwargs.items():
+                self.kv.update({key.upper():value})
+        else:
+            self.kv.update(**kwargs)
+        
         self.update()
         
     def delete(self, key, *args):
@@ -64,31 +91,38 @@ class Namelist:
         key : String
             Name of the property, e.g., `MaxE` of `Cavity` for `Astra`
         *args: String
-            More names 
+            More key names 
         Returns
         -------
         None.
 
         '''
         key = key.upper()
-        if key in self.kv.keys:
+        if key in self.kv.keys():
             self.kv.pop(key)
         if len(args)>0:
             for key in args:
-                self.kv.pop(key)
+                if key in self.kv.keys():
+                    self.kv.pop(key)
         self.update()
         
     def update(self, quoting = True):
         '''
-        Update output to write into a file
+        Update output to be written to a file
         Returns
         -------
         None.
 
         '''
-        output = self.starter+self.name.upper()+' \n'
+        output = self.starter+self.name+' \n'
         for k, v in self.kv.items():
-            #k = k.lower()
+            if self.case.upper() in ['UPPER', 'BIG', 'BIGGER']:
+                k = k.upper()
+            elif self.case.upper() in ['LOWER', 'SMALL', 'SMALLER']:
+                k = k.lower()
+            else:
+                k = k
+                
             #print(k)
             if isinstance(v, (list, tuple, np.ndarray)):
                 dim = len(np.asarray(v).shape)
@@ -97,30 +131,39 @@ class Namelist:
                         if isinstance(vi, str):
                             if quoting:
                                 vi = '\''+vi+'\''
+                        else:
+                            vi = toStr(vi)
                         output += ' {}({})={}\n'.format(k, i+1, vi)
                 elif dim == 2:
                     for i, vi in enumerate(v):
-                        if k.upper() in ['D_GAP', 'MODULE', 'AP_GR', 'Q_MULT_A', 'Q_MULT_B']:
+                        if k.upper() in ['D_GAP', 'MODULE', 'AP_GR', 'Q_MULT_A', 'Q_MULT_B']: # only for `Astra`->Cavity
                             for j, vij in enumerate(vi):
                                 if isinstance(vij, str):
                                     if quoting:
                                         vij = '\''+vij+'\''
-                                output += ' {}({},{})={}\n'.format(k, j+1, i+1, vij)
-                        elif k.upper() in ['D1', 'D2', 'D3', 'D4']:
-                            output += ' {}({})=({},{})\n'.format(k, i+1, vi[0], vi[1])
+                                else:
+                                    vij = toStr(vij)
+                                output += ' {}({},{})={}\n'.format(k, j+1, i+1, toStr(vij))
+                        elif k.upper() in ['D1', 'D2', 'D3', 'D4']: # only for `Astra`->Dipole
+                            output += ' {}({})=({},{})\n'.format(k, i+1, toStr(vi[0]), toStr(vi[1]))
                         else:
                             print('Unknown key!')
             else:
                 if isinstance(v, str):
                     if quoting:
                         v = '\''+v+'\''
+                else:
+                    v = toStr(v)
                 output += ' {}={}\n'.format(k, v)
         
         output += self.ending+'\n\n'
         self.output = output
     
-    def write(self, inputName, case = 'upper'):
+    def write(self, inputName, case = None):
         
+        if case == None:
+            case = self.case
+            
         if case.upper() in ['UPPER', 'BIG', 'BIGGER']:
             output = self.output.upper()
         elif case.upper() in ['LOWER', 'SMALL', 'SMALLER']:
@@ -133,7 +176,7 @@ class Namelist:
         ff.close()
         
 
-# Make a alias of the class `Namelist`
+# Make an alias of the class `Namelist`
 Module = Namelist
 
 
@@ -144,11 +187,14 @@ class Namelists:
     This class is used to generate input file for `Astra`, since it usually 
     includes more than one `Namelist`.
     '''
+    
     def __init__(self, namelists = None, *args):
-        self.kv = {}
+        self.kv = ADict()
+        #print(namelists, args)
         if namelists is not None:
-            self.add_namelists(np.asarray([namelists]).flatten())
-            
+            namelists = np.asarray([namelists]).flatten()
+            #self.addNamelists(np.asarray([namelists]).flatten())    
+            self.add(*namelists)
         if len(args)>0:
             self.add(*args)
         
@@ -171,7 +217,7 @@ class Namelists:
                self.kv.update({namelist.name:namelist})
         self.update(**kwargs)
     
-    def add_namelists(self, namelists):
+    def addNamelists(self, namelists):
         '''
         Add a series of `Namelist`
 
@@ -189,9 +235,17 @@ class Namelists:
             self.add(namelist)
                 
     # Create a alias, to be compatible with old versions
+    add_namelists = addNamelists
     add_modules = add_namelists
-    update = add_namelists
+    #update = add_namelists
     
+    def update(self):
+        output = ''
+        for _, namelist in self.kv.items():
+            #print('updated here 2: ', namelist.name)
+            output += namelist.output
+        self.output = output
+        
     def delete(self, key, *args):
         '''
         Delete one or more properties
@@ -207,19 +261,13 @@ class Namelists:
 
         '''
         key = key.upper()
-        if key in self.namelists.keys:
+        if key in self.kv.keys():
             self.kv.pop(key)
         if len(args)>0:
             for key in args:
-                if key in self.namelists.keys:
+                if key in self.kv.keys():
                     self.kv.pop(key)
         self.update()
-    
-    def update(self):
-        output = ''
-        for _, namelist in self.kv.items():
-            output += namelist.output
-        self.output = output
         
     def write(self, inputName, case = 'upper'):
         

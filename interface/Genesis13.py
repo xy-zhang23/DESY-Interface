@@ -11,13 +11,14 @@ from .Namelists import *
 # 'Genesis2` also has only one `Namelist`, like Generator in Astra
 class Genesis2(Namelist):
     starter = '$'
-    ending = '$END'
+    ending = '$end'
+    case = ''
     
     def __init__(self, *args, **kwargs):
         
         super(Genesis2, self).__init__(name = 'Newrun', **kwargs)
         
-    def update(self):
+    def update(self, quoting = True):
         '''
         Update output string to write into a file
         Returns
@@ -26,9 +27,15 @@ class Genesis2(Namelist):
 
         '''
         
-        output = self.starter+self.name.upper()+' \n'
+        output = self.starter+self.name+' \n'
         for k, v in self.kv.items():
-            #k = k.lower()
+            if self.case.upper() in ['UPPER', 'BIG', 'BIGGER']:
+                k = k.upper()
+            elif self.case.upper() in ['LOWER', 'SMALL', 'SMALLER']:
+                k = k.lower()
+            else:
+                k = k
+            
             #print(k)
             if isinstance(v, (list, tuple, np.ndarray)):
                 dim = len(np.asarray(v).shape)
@@ -37,19 +44,25 @@ class Genesis2(Namelist):
                         if isinstance(vi, str):
                             if quoting:
                                 vi = '\''+vi+'\''
+                        else:
+                            vi = toStr(vi)
                         if i == 0:
                             output += ' {}={} '.format(k, vi)
-                        output += '{}\n'.format(vi)
+                        else:
+                            output += '{} '.format(vi)
+                    output += '\n'
             else:
                 if isinstance(v, str):
-                    if self.quoting:
+                    if quoting:
                         v = '\''+v+'\''
+                else:
+                    v = toStr(v)
                 output += ' {}={}\n'.format(k, v)
         
         output += self.ending+'\n\n'
         self.output = output
     
-    def write(self, inputName = 'gene.in', case = 'lower'):   
+    def write(self, inputName = 'gene.in', case = ''):   
         super(Genesis2, self).write(inputName, case)
         
     def qsub(self, jobName = None, inputName = 'gene.in', direc = '.',
@@ -60,7 +73,6 @@ class Genesis2(Namelist):
         
 # `Genesis4` has a list of `Namelist` as `Astra`, therefore just inherit from
 # the `Astra` class
-
 class Genesis4(Namelists):
     '''
     Interface class to generate input file for `Genesis` version 4. 
@@ -69,16 +81,24 @@ class Genesis4(Namelists):
     '''
     def __init__(self, namelists = None, *args):
         super(Genesis4, self).__init__(namelists, *args)
-        self.update()
+        #self.update() # It's already called in __init__
         
     def update(self):
         output = ''
         for _, namelist in self.kv.items():
+            #print('updated here: ', namelist.name)
+            
+            namelist.starter = '&'
+            namelist.ending = '&end'
+            namelist.case = 'lower'
+
+            namelist.name = namelist.name.lower()
+            
             namelist.update(quoting = False)
             output += namelist.output
         self.output = output
         
-    def write(self, inputName = 'gene.in', case = 'lower'):
+    def write(self, inputName = 'gene.in', case = ''):
         super(Genesis4, self).write(inputName, case)
     
     def qsub(self, jobName = None, inputName = 'gene.in', direc = '.',

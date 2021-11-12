@@ -68,8 +68,8 @@ class Astra(Namelists):
     def __init__(self, namelists = None, *args):
         super(Astra, self).__init__(namelists, *args)
         
-    def write(self, inputName = 'ast.in'): 
-        super(Astra, self).write(inputName)
+    def write(self, inputName = 'ast.in', case = ''): 
+        super(Astra, self).write(inputName, case)
         
     def run(self, inputName = 'ast.in', force = True, command = 'astra'):
         '''

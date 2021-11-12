@@ -56,7 +56,7 @@ def plot_config():
     mpl.rc('axes', labelpad = 0, prop_cycle=(cycler('color', color_cycle) + cycler('linestyle', linestyle_cycle) + cycler('marker', marker_cycle)))
     mpl.rc('legend', fontsize = 12, labelspacing = 0.05, handletextpad=0.4, frameon=False, handlelength=2.1)
     
-    mpl.rc('figure', dpi = 100, figsize = (4, 4))
+    mpl.rc('figure', dpi = 300, figsize = (4, 4))
     mpl.rc('figure.subplot', bottom = 0.15, top = 0.9, left = 0.15, right = 0.9)
     
     mpl.rc('image', cmap = 'jet')
