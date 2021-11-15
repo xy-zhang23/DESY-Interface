@@ -9,11 +9,7 @@ import numpy as np
 import subprocess
 
 try:
-    from requests.structures import CaseInsensitiveDict
-    ADict = CaseInsensitiveDict
-except Exception as err:
-    print(err)
-    
+    #from requests.structures import CaseInsensitiveDict
     class CaseInsensitiveDict(dict):
         @classmethod
         def _k(cls, key):
@@ -46,8 +42,15 @@ except Exception as err:
                 v = super(CaseInsensitiveDict, self).pop(k)
                 self.__setitem__(k, v)
     ADict = CaseInsensitiveDict
-    #ADict = dict
+except Exception as err:
+    print(err)
+    ADict = dict
 
+#%%
+a = ADict()
+a.update(a = 3)
+
+#%%
 from .Job import *
 
 def toStr(v):
@@ -62,7 +65,7 @@ def toStr(v):
     if t == str:
         v = v
     elif isinstance(v, (bool, np.bool_)):
-        v = '{}'.format(v).lower()
+        v = '{}'.format(v)
     elif isinstance(v, (int, float, np.integer, np.floating)):
         v = '{:.7g}'.format(v)
     return v
