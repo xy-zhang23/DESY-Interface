@@ -10,13 +10,13 @@ from .Namelists import *
 
 # 'Genesis2` also has only one `Namelist`, like Generator in Astra
 class Genesis2(Namelist):
-    starter = '$'
-    ending = '$end'
+    starter = ' $'
+    ending = ' $end'
     case = ''
     
     def __init__(self, *args, **kwargs):
         
-        super(Genesis2, self).__init__(name = 'Newrun', **kwargs)
+        super(Genesis2, self).__init__(name = 'newrun', **kwargs)
         
     def update(self, quoting = True):
         '''

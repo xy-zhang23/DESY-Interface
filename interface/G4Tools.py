@@ -6,9 +6,110 @@ Created on Thu Sep  9 11:36:54 2021
 """
 
 from .Numeric import *
+from .BeamDiagnostics import *
 
 from scipy import fft
 import h5py
+
+fmt = '%14.6E%14.6E%14.6E%14.6E%14.6E%14.6E%14.6E%14.6E%4d%4d'
+astra_format = fmt
+
+#%% Scale the input distribution according to the given match parameters
+#   This is a remake of the method in Genesis-1.3-Version4
+def Matching(inputName = None, dist = None, outputName = None,
+             betax = 0, betay = 0, alphax = 0, alphay = 0):
+    '''
+    Astra input particle format to hdf5 format used in Genesis1.3 Version 4
+
+    Parameters
+    ----------
+    inputName : string, optional
+        Name of the input particle file. If defined, prefered than inputDist. 
+        None by default. 
+    inputDist : 10D array, optional
+        Particle distribution from Astra, with absolute z and Pz. None by default. 
+    outputName: string, optional
+        Name of the output particle file.
+    betax, betay, alphax, alphay: Twiss parameters to be matched
+    Returns
+    -------
+    None.
+    
+    --------------
+    Example:
+        # Load the astra distribution
+        fname = 'ast.2529.003'
+        
+        kwargs = {}
+        kwargs.update(
+            inputName = fname,
+            betax = 5.115,
+            betay = 1.634,
+            alphax =  7.326,
+            alphay = -0.897)
+        Matching(**kwargs)
+
+    '''
+    # Load the astra distribution
+    if inputName != None:   
+        dist = pd_loadtxt(inputName)
+        dist[1:,2] += dist[0,2]
+        dist[1:,5] += dist[0,5]
+    elif inputDist != None:
+        dist = inputDist
+    else:
+        print('No input file or data!')
+        return
+    
+    if outputName == None:
+        outputName = 'temp.dat'
+    print('The distribution is saved to '+outputName)
+    
+    diag = BeamDiagnostics(dist = dist)
+    print('Before matching:')
+    for key in ['nemit_x', 'nemit_y', 'beta_x', 'beta_y', 'alpha_x', 'alpha_y']:
+        i = diag.keyIndex.get(key)
+        unit = diag.keyUnit.get(key)
+        print(str('%17s: %15.6E %s' % (key, diag.x[i], unit)))
+    #diag.demo()
+    
+    # Define the Twiss parameters of the matched distribution
+    match = 1
+    gammax, gammay = (1+alphax**2)/betax, (1+alphay**2)/betay
+    
+    if match:
+        
+        bx, by, ax, ay = diag.beta_x, diag.beta_y, diag.alpha_x, diag.alpha_y
+        px = dist[:,3]/dist[:,5] # px->xp
+        py = dist[:,4]/dist[:,5] # py->yp
+        
+        px += (ax/bx)*dist[:,0]
+        py += (ay/by)*dist[:,1]
+        
+        dist[:,0] *= np.sqrt(betax/bx)
+        dist[:,1] *= np.sqrt(betay/by)
+        
+        px *= np.sqrt(bx/betax)
+        py *= np.sqrt(by/betay)
+        
+        px -= (alphax/betax)*dist[:,0]
+        py -= (alphay/betay)*dist[:,1]
+        
+        dist[:,3] = px*dist[:,5]
+        dist[:,4] = py*dist[:,5]
+        
+    diag = BeamDiagnostics(dist = dist)
+    print('After matching:')
+    for key in ['nemit_x', 'nemit_y', 'beta_x', 'beta_y', 'alpha_x', 'alpha_y']:
+        i = diag.keyIndex.get(key)
+        unit = diag.keyUnit.get(key)
+        print(str('%17s: %15.6E %s' % (key, diag.x[i], unit)))
+    
+    dist[1:,2] -= dist[0,2]
+    dist[1:,5] -= dist[0,5]
+    
+    np.savetxt(outputName, dist, fmt = astra_format)
+    return
 
 #%% Convert 6D particle distributions in ascii format (used in Astra) to hdf5
 #   format for Genesis1.3 V4
@@ -70,7 +171,91 @@ def astra2hdf5(inputName = None, inputDist = None, outputName = None, ext = '.h5
     dp = f.create_dataset("p", data = p)
     
     f.close()
+    return
+
+#%% Convert Astra distribution to slice-wise parameters for Genesis1.3-Version2
+def astra2slice(fname, fout = None, nslice = 100, nc = 9):
+    '''
+    The output file follows the format required for Genesis 1.3 simulation.
+    From left the right, the column are:
+      ZPOS GAMMA0 DELGAM EMITX EMITY BETAX BETAY XBEAM YBEAM PXBEAM PYBEAM ALPHAX ALPHAY CURPEAK ELOSS
+    Parameters
+      fname: filename of Astra output
+      fout: filename of the output
+      nslice: number of slices
+      nc: number of slices to discard on the sides
+    '''
     
+    header = '? VERSION = 1.0\n'+\
+    '? COLUMNS ZPOS GAMMA0 DELGAM EMITX EMITY BETAX BETAY XBEAM YBEAM PXBEAM PYBEAM ALPHAX ALPHAY CURPEAK ELOSS'
+    
+    data = np.loadtxt(fname)
+    data[1:,2] += data[0,2]
+    data[1:,5] += data[0,5]
+    
+    nop = len(data[:,0])
+    #select = (data[:,0]>=-3e-3)*(data[:,0]<=3e-3)*(data[:,1]>=-1e-3)*(data[:,1]<=1e-3)
+    select = (data[:,9]>0); data = data[select]
+    nop = len(data[:,0])
+    
+    nc = nc
+    counts, edges = np.histogram(data[:,2], bins = nslice)
+    edges = (edges[:-1]+edges[1:])/2.0
+    #print(counts, edges, nc)
+    
+    zmin, zmax = edges[0], edges[-1]
+    #print(zmin, zmax)
+    
+    for i in np.arange(len(counts[0:nslice//2])):
+        if counts[i] < nc:
+            zmin = edges[i+1]; print(zmin)
+    for i in np.arange(len(counts[nslice//2:])):
+        if counts[nslice-i-1] < nc:
+            zmax = edges[nslice-i-2]
+    #print(zmin, zmax)
+    
+    
+    dz = (zmax-zmin)/nslice
+    
+    r = []; zpos = 0; counts = 0
+    for i in np.arange(nslice):
+        zmin_i, zmax_i = zmin+i*dz, zmin+i*dz+dz
+        select = (data[:,2]>=zmin_i)*(data[:,2]<=zmax_i)
+        beam_i = data[select]; #print(len(beam_i))
+        
+        diag = BeamDiagnostics(dist = beam_i);
+        Ipeak = -diag.Q_b/dz*g_c
+        
+        if i == 0:
+            tmp = [zpos, kinetic2gamma(diag.Ekin), diag.std_Ekin*1e-3/g_mec2, \
+                   diag.nemit_x*1e-6, diag.nemit_y*1e-6, diag.beta_x, diag.beta_y, \
+                   0, 0, 0, 0, diag.alpha_x, diag.alpha_y, 0, 0]
+            r.append(tmp); #counts += 1; print(counts)
+            zpos += dz/2.0
+            
+            
+        tmp = [zpos, kinetic2gamma(diag.Ekin), diag.std_Ekin*1e-3/g_mec2, \
+             diag.nemit_x*1e-6, diag.nemit_y*1e-6, diag.beta_x, diag.beta_y, \
+             0, 0, 0, 0, diag.alpha_x, diag.alpha_y, Ipeak, 0]
+        r.append(tmp); #counts += 1; print(counts)
+        
+        zpos += dz
+        
+        if i == nslice-1:
+            zpos -= dz/2.0
+            tmp = [zpos, kinetic2gamma(diag.Ekin), diag.std_Ekin*1e-3/g_mec2, \
+                   diag.nemit_x*1e-6, diag.nemit_y*1e-6, diag.beta_x, diag.beta_y, \
+                   0, 0, 0, 0, diag.alpha_x, diag.alpha_y, 0, 0]
+            r.append(tmp); #counts += 1; print(counts)
+            
+            
+    if fout is None:
+        fout = 'slice@'+fname+'.dat'
+    print('The distribution is saved to '+fout)
+    np.savetxt(fout, np.array(r), fmt = '%-15.6e', \
+               header = header, comments='')
+    return np.array(r)
+
 #%% Convert slice-wise parameters from ascii (used in Genesis1.3 V2) to hdf5
 #   format for V4
 def slice2hdf5(inputName = None, outputName = None, ext = '.h5'):
@@ -109,6 +294,79 @@ def slice2hdf5(inputName = None, outputName = None, ext = '.h5'):
     
     return
 
+#%% Astra and Warp formats conversion
+def astra2warp(fname, fout = None, Q_coef = -1.0, High_res = True):
+    '''
+    The output file follows the format required for Warp simulation.
+    From left the right, the column are:
+      X Y Z UX UY UZ W, where Ux Uy Uz are dimentionless momentum, W is macro particle charge
+    Parameters
+      fname: filename of Astra output
+      fout: filename of the output
+      Q_coef: an coefficient to scale the bunch charge, default is -1.0
+    '''
+    data = np.loadtxt(fname)
+    data[1:,2] += data[0,2]
+    data[1:,5] += data[0,5]
+    
+    select = (data[:,9]>0); data = data[select]
+    data[:,3] = data[:,3]/g_mec2/1e6
+    data[:,4] = data[:,4]/g_mec2/1e6
+    data[:,5] = data[:,5]/g_mec2/1e6
+    
+    data[:,6] = data[:,7]*1e-9/g_qe*Q_coef # number of electrons for each macro particle
+    
+    if fout is None:
+        fout = fname+'.warp'
+    print('The distribution is saved to '+fout)
+    if High_res:
+        fmt = '%20.12E'
+    else:
+        fmt = '%14.6E'
+    np.savetxt(fout, data[:,0:7], fmt = fmt)
+    return data[:,0:7]
+
+def warp2astra(fname, fout = None, Run = 1, Q_coef = -1.0, ratio = 100):
+    '''
+    The output file follows the format required for Astra simulation.
+    Parameters
+      fname: filename of Warp output, which includes columns of X Y Z UX UY UZ W, where Ux Uy Uz are dimentionless momentum, W is macro particle charge
+      fout: filename of the output
+      Q_coef: an coefficient to scale the bunch charge, default is -1.0
+      ratio: a factor used to scale the position of electron bunch to be used in Astra file name
+    '''
+    
+    data = np.loadtxt(fname)
+    data[:,3:6] *= g_mec2*1e6
+    
+    z0 = weighted_mean(data[:,2], data[:,-1])
+    pz0 = weighted_mean(data[:,5], data[:,-1])
+    
+    data[:,2] -= z0
+    data[:,5] -= pz0; #print pz0; return
+    data[:,6] *= (-g_qe*1e9) # convert to nC
+    
+    nop = len(data)
+    d1 = np.zeros((nop+1, 10))
+    d1[0, 2] = z0
+    d1[0, 5] = pz0
+    
+    d1[1:,0:6] = data[:,0:6]
+    d1[1:,7] = data[:,6]
+    d1[:, -2] = 1
+    d1[:, -1] = 5
+    
+    if fout is None:
+        print('The current bunch center is at ', z0, ' meters')
+        fid = z0*ratio
+        while round(fid)<1:
+            fid *= 10
+        fid = round(fid)
+        fout = 'ast.%04d.%03d' % (fid, Run)
+    print('The distribution is saved to '+fout)
+    
+    np.savetxt(fout, d1, fmt = '%12.4E%12.4E%12.4E%12.4E%12.4E%12.4E%12.4E%12.4E%4d%4d')
+    return d1
 #%% Resample 6D particle distribution in such a way that every slice has the 
 #   same number of macro particles, as input for Genesis1.3 V4.
 #   This is a remake of the Genesis1.3 V4 C++ codes
@@ -249,11 +507,20 @@ def modulation1D(x, funcMod, args = (), centered = True, xc = None):
     # normalize the dataset
     xnorm = (x-xmin)/(xmax-xmin)
     
-    xbin = np.linspace(0, 1, 1001)
+    #
+    xbin = np.linspace(0, 1, 64*120+1)
     freq = funcMod(xbin*(xmax-xmin)+xmin, *args)
     freq = freq/np.sum(freq)
     for i in np.arange(1, len(freq)):
         freq[i] += freq[i-1]
+    #
+    # from scipy.integrate import quad
+    # xbin = np.linspace(0, 1, 10001)
+    # freq = np.zeros(len(xbin))
+    # for i in np.arange(1, len(freq)):
+    #     y, err = quad(funcMod, xbin[i-1], xbin[i], *args)
+    #     freq[i] = freq[i-1]+y
+    # print(freq[-1])
     
     from scipy.interpolate import interp1d
     funcInterp = interp1d(freq, xbin, bounds_error = False, fill_value = 0)
@@ -263,7 +530,7 @@ def modulation1D(x, funcMod, args = (), centered = True, xc = None):
     xnew = xnew*(xmax-xmin)+xmin
     
     return xnew
-
+    
 def modulation2D(x, y, funcMod, args = (), centered = True, xc = None):
     '''
     Modulate the input dataset with the predefined modulation function.

@@ -5,7 +5,7 @@ from .PostGenesis13 import *
 
 from .BeamDiagnostics import *
 from .BeamFormat import *
-from .G4Tools import *
+#from .G4Tools import *
 
 try:
     from .NSGAPlus import *

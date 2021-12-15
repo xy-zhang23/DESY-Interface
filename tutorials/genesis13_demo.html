@@ -14311,10 +14311,10 @@ a.anchor-link {
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">workdir</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;temp&#39;</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">workdir</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">afs\ifh.de\group\pitz\data\lixiangk\sim\2021\Seeding\test&#39;</span>
 <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">workdir</span><span class="p">)</span>
 </pre></div>
 
@@ -14326,20 +14326,20 @@ a.anchor-link {
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[3]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">P0</span> <span class="o">=</span> <span class="mi">17</span> <span class="c1"># MeV/c</span>
 <span class="c1">#P0 = 2.054595E+01</span>
 
-<span class="n">Q</span> <span class="o">=</span> <span class="mf">2500e-12</span> <span class="c1"># Coulumb</span>
+<span class="n">Q</span> <span class="o">=</span> <span class="mf">4000e-12</span> <span class="c1"># Coulumb</span>
 
 <span class="n">lam_s</span> <span class="o">=</span> <span class="mf">100e-6</span>
 <span class="n">Nu</span><span class="p">,</span> <span class="n">lam_u</span><span class="p">,</span> <span class="n">B</span> <span class="o">=</span> <span class="mi">120</span><span class="p">,</span> <span class="mf">3.0e-2</span><span class="p">,</span> <span class="mf">1.2799839</span>
 
 <span class="n">K</span> <span class="o">=</span> <span class="mf">3.49</span>
 
-<span class="n">FWHM</span> <span class="o">=</span> <span class="mf">21.5e-12</span> <span class="c1"># second</span>
+<span class="n">FWHM</span> <span class="o">=</span> <span class="mf">20e-12</span> <span class="c1"># second</span>
 <span class="n">sigma_z</span> <span class="o">=</span> <span class="n">FWHM</span><span class="o">*</span><span class="n">g_c</span>
 <span class="n">curpeak</span> <span class="o">=</span> <span class="o">-</span><span class="n">Q</span><span class="o">/</span><span class="n">FWHM</span><span class="p">;</span> <span class="nb">print</span> <span class="p">(</span><span class="s1">&#39;peak current: &#39;</span><span class="p">,</span> <span class="n">curpeak</span><span class="p">)</span>
 
@@ -14447,10 +14447,10 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>peak current:  -116.27906976744187
+<pre>peak current:  -200.00000000000003
 resonant wavelength from kinetic energy:  100.0  um
-# of slice:  64.45537847
-$Newrun 
+# of slice:  59.9584916
+ $newrun 
  aw0=2.467803
  awd=2.467803
  nwig=120
@@ -14460,7 +14460,7 @@ $Newrun
  iseed=-1
  gamma0=33.2832
  delgam=0.166416
- curpeak=-116.2791
+ curpeak=-200
  rxbeam=0.00158
  rybeam=0.00018543
  emitx=4e-06
@@ -14478,7 +14478,7 @@ $Newrun
  nslice=180
  ntail=0
  iotail=1
- curlen=0.006445538
+ curlen=0.005995849
  xlamds=0.0001
  zrayl=0.035251
  delz=0.5
@@ -14490,7 +14490,7 @@ $Newrun
  outputfile=&#39;pithz.1.out&#39;
  maginfile=&#39;../LCLS-I.lat&#39;
  lout=1 1 1 1 1 0 1 1 1 1 1 
-$end
+ $end
 
 
 </pre>
@@ -14513,7 +14513,12 @@ $end
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#%% Batch generating inputs for parameter scan</span>
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">):</span>
+<span class="n">var1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">)</span>
+<span class="n">var2</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">]</span>
+
+<span class="n">combi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">]</span> <span class="k">for</span> <span class="n">v1</span> <span class="ow">in</span> <span class="n">var1</span> <span class="k">for</span> <span class="n">v2</span> <span class="ow">in</span> <span class="n">var2</span><span class="p">])</span>
+
+<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">combi</span><span class="p">:</span>
     
     <span class="c1"># undulator error </span>
     <span class="c1"># iseed = np.random.randint(5000, 10000)</span>
@@ -14521,15 +14526,21 @@ $end
     <span class="c1"># gen.set(iseed = iseed, delaw = Kerr, iertyp = 0)</span>
     
     <span class="c1"># shot noise</span>
-    <span class="n">ipseed</span> <span class="o">=</span> <span class="n">i</span>
+    <span class="n">ipseed</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     
-    <span class="n">fname</span> <span class="o">=</span> <span class="s1">&#39;pithz.</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ipseed</span><span class="p">)</span>
+    <span class="c1"># bunching factor</span>
+    <span class="n">bunch</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    
+    <span class="c1"># output name</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="s1">&#39;pithz.</span><span class="si">%d</span><span class="s1">.</span><span class="si">%.2f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ipseed</span><span class="p">,</span> <span class="n">bunch</span><span class="p">)</span>
+    
     <span class="n">gen</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ipseed</span> <span class="o">=</span> <span class="n">ipseed</span><span class="p">)</span>
+    <span class="n">gen</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">bunch</span> <span class="o">=</span> <span class="n">bunch</span><span class="p">)</span>
     
     <span class="n">gen</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">outputfile</span> <span class="o">=</span> <span class="n">fname</span><span class="o">+</span><span class="s1">&#39;.out&#39;</span><span class="p">)</span>
 
     <span class="n">gen</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">fname</span><span class="o">+</span><span class="s1">&#39;.in&#39;</span><span class="p">)</span>
-    <span class="n">gen</span><span class="o">.</span><span class="n">qsub</span><span class="p">(</span><span class="n">fname</span><span class="o">+</span><span class="s1">&#39;.sh&#39;</span><span class="p">)</span>
+    <span class="n">gen</span><span class="o">.</span><span class="n">qsub</span><span class="p">(</span><span class="n">fname</span><span class="o">+</span><span class="s1">&#39;.sh&#39;</span><span class="p">,</span> <span class="n">fname</span><span class="o">+</span><span class="s1">&#39;.in&#39;</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14550,7 +14561,7 @@ $end
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">workdir</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;temp&#39;</span>
@@ -14565,7 +14576,7 @@ $end
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[3]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">P0</span> <span class="o">=</span> <span class="mi">17</span> <span class="c1"># MeV/c</span>
@@ -14680,15 +14691,15 @@ $end
  seed=1
  npart=8192
  nbins=4
- one4one=False
- shotnoise=True
+ one4one=false
+ shotnoise=true
 &amp;end
 
 &amp;time 
  s0=0
  slen=0.015
  sample=1
- time=True
+ time=true
 &amp;end
 
 &amp;profile_step 
@@ -14769,8 +14780,180 @@ $end
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Formats-conversion">Formats conversion<a class="anchor-link" href="#Formats-conversion">&#182;</a></h1>
+<h1 id="Formats-conversion">Formats conversion<a class="anchor-link" href="#Formats-conversion">&#182;</a></h1><p><code>Ref: interface/BeamFormat.py</code></p>
+
 </div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">func</span> <span class="o">=</span> <span class="p">[</span><span class="n">Matching</span><span class="p">,</span> <span class="n">astra2hdf5</span><span class="p">,</span> <span class="n">astra2slice</span><span class="p">,</span> <span class="n">resampleParticles</span><span class="p">,</span> <span class="n">modulation1D</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">func</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="s1">&#39; : &#39;</span><span class="p">)</span>
+    <span class="n">help</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>Matching  : 
+Help on function Matching in module interface.BeamFormat:
+
+Matching(inputName=None, dist=None, outputName=None, betax=0, betay=0, alphax=0, alphay=0)
+    Astra input particle format to hdf5 format used in Genesis1.3 Version 4
+    
+    Parameters
+    ----------
+    inputName : string, optional
+        Name of the input particle file. If defined, prefered than inputDist. 
+        None by default. 
+    inputDist : 10D array, optional
+        Particle distribution from Astra, with absolute z and Pz. None by default. 
+    outputName: string, optional
+        Name of the output particle file.
+    betax, betay, alphax, alphay: Twiss parameters to be matched
+    Returns
+    -------
+    None.
+    
+    --------------
+    Example:
+        # Load the astra distribution
+        fname = &#39;ast.2529.003&#39;
+        
+        kwargs = {}
+        kwargs.update(
+            inputName = fname,
+            betax = 5.115,
+            betay = 1.634,
+            alphax =  7.326,
+            alphay = -0.897)
+        Matching(**kwargs)
+
+astra2hdf5  : 
+Help on function astra2hdf5 in module interface.BeamFormat:
+
+astra2hdf5(inputName=None, inputDist=None, outputName=None, ext=&#39;.h5&#39;)
+    Astra input particle format to hdf5 format used in Genesis1.3 Version 4
+    
+    Parameters
+    ----------
+    inputName : string, optional
+        Name of the input particle file. If defined, prefered than inputDist. 
+        None by default. 
+    inputDist : 6D array, optional
+        Particle distribution from Astra, with absolute z and Pz. None by default. 
+    outputName: string, optional
+        Name of the output particle file.
+    Returns
+    -------
+    None.
+
+astra2slice  : 
+Help on function astra2slice in module interface.BeamFormat:
+
+astra2slice(fname, fout=None, nslice=100, nc=9)
+    The output file follows the format required for Genesis 1.3 simulation.
+    From left the right, the column are:
+      ZPOS GAMMA0 DELGAM EMITX EMITY BETAX BETAY XBEAM YBEAM PXBEAM PYBEAM ALPHAX ALPHAY CURPEAK ELOSS
+    Parameters
+      fname: filename of Astra output
+      fout: filename of the output
+      nslice: number of slices
+      nc: number of slices to discard on the sides
+
+resampleParticles  : 
+Help on function resampleParticles in module interface.BeamFormat:
+
+resampleParticles(inputBeamDist, mpart=8192)
+    Resampling to add samples to a known set, rewriting the C++ code in Genesis 1.3
+    V4 into Python.
+    Add particles to the input distribution `beamdist0` and return a new distribution
+    of size `mpart`.
+    
+    Parameters
+    ----------
+    inputBeamDist : 2D array of size (ndist0, 6)
+        6D particle distribution, with columns storing coordinates of x, y, theta, 
+        px, py, gamma, respectively.
+    mpart : int
+        Number of particles of the new distribution to return.
+    
+    Returns
+    -------
+    beamDist : 2D array of size (mpart, 6)
+        6D particle distribution, with columns storing coordinates of x, y, theta,
+        px, py, gamma, respectively.
+        
+    Examples
+    -------
+    ```
+    mpart = 4096
+    beamdist0 = np.random.rand(4000, 6) # x, y, theta, px, py, gamma
+    beamdist = resampleParticles(beamdist0, mpart)
+    ```
+
+modulation1D  : 
+Help on function modulation1D in module interface.BeamFormat:
+
+modulation1D(x, funcMod, args=(), centered=True, xc=None)
+    Modulate the input dataset with the predefined modulation function.
+    
+    Parameters
+    ----------
+    x : 1D array-like
+        The dataset to be modulated.
+    funcMod : 1D function
+        The probability density function of the modulated profile.
+    args: tuple, optional
+        Extra arguments passed to the function.
+    centered: boolean, optional
+        True by default. If True, center the distribution, that is to shift it
+        by its geometric average before applying the modulation.
+    xc: float, optional  
+        If not None, then center the distribution at xc. To be implemented.
+    Returns
+    -------
+    xnew: 1D array-like
+        The modulated dataset.
+    
+    Examples:
+    ```
+    x = np.random.rand(100000)
+    funcMod = lambda x, k:np.sin(k*x)**2
+    args = [ 2*np.pi/0.5 ]
+    
+    xnew = modulation1D(x, funcMod, *args)
+    plt.figure()
+    
+    _ = plt.hist(x, bins = 100, histtype = r&#39;step&#39;)
+    _ = plt.hist(xnew, bins = 100, histtype = r&#39;step&#39;)
+    ```
+
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
