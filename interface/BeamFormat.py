@@ -35,19 +35,21 @@ def Matching(inputName = None, dist = None, outputName = None,
     None.
     
     --------------
-    Example:
-        # Load the astra distribution
-        fname = 'ast.2529.003'
-        
-        kwargs = {}
-        kwargs.update(
-            inputName = fname,
-            betax = 5.115,
-            betay = 1.634,
-            alphax =  7.326,
-            alphay = -0.897)
-        Matching(**kwargs)
-
+    Examples
+    --------
+    ```
+    fname = 'ast.2529.003'
+    fout = 'ast_.2529.013'
+    kwargs = {}
+    kwargs.update(
+        inputName = fname,
+        outputName = fout,
+        betax = 5.115,
+        betay = 1.634,
+        alphax =  7.326,
+        alphay = -0.897)
+    Matching(**kwargs)
+    ```
     '''
     # Load the astra distribution
     if inputName != None:   
@@ -112,7 +114,7 @@ def Matching(inputName = None, dist = None, outputName = None,
 
 #%% Convert 6D particle distributions in ascii format (used in Astra) to hdf5
 #   format for Genesis1.3 V4
-def astra2hdf5(inputName = None, inputDist = None, outputName = None, ext = '.h5'):
+def astra2hdf5(inputName = None, inputDist = None, outputName = None):
     '''
     Astra input particle format to hdf5 format used in Genesis1.3 Version 4
 
@@ -128,24 +130,30 @@ def astra2hdf5(inputName = None, inputDist = None, outputName = None, ext = '.h5
     Returns
     -------
     None.
-
+    
+    Examples
+    --------
+    ```
+    fname = 'beam_modulated.ini'
+    fout = 'beam_modulated.h5'
+    kwargs = dict(inputName = fname,
+                 outputName = fout)
+    astra2hdf5(**kwargs)
+    ```
     '''
     
     if inputName != None:   
         data = pd_loadtxt(inputName)
         data[1:,2] += data[0,2]
         data[1:,5] += data[0,5]
-        if outputName == None:
-            path, base, _ = fileparts(inputName)
-            #outputName = path+os.sep+base+ext 
-            outputName = inputName+ext
     elif inputDist != None:
         data = inputDist[:,0:6]
-        if outputName == None:
-            outputName = 'temp'+ext
     else:
         print('No input file or data!')
         return
+        
+    if outputName == None:
+        outputName = 'temp.h5'
     print('The distribution is saved to '+outputName)
     
     x, y, z = data[:,0:3].T[:]
@@ -173,22 +181,39 @@ def astra2hdf5(inputName = None, inputDist = None, outputName = None, ext = '.h5
     return
 
 #%% Convert Astra distribution to slice-wise parameters for Genesis1.3-Version2
-def astra2slice(fname, fout = None, nslice = 100, nc = 9):
+def astra2slice(inputName, outputName = None, nslice = 100, nc = 9):
     '''
     The output file follows the format required for Genesis 1.3 simulation.
     From left the right, the column are:
-      ZPOS GAMMA0 DELGAM EMITX EMITY BETAX BETAY XBEAM YBEAM PXBEAM PYBEAM ALPHAX ALPHAY CURPEAK ELOSS
+        ZPOS GAMMA0 DELGAM EMITX EMITY BETAX BETAY XBEAM YBEAM PXBEAM PYBEAM ALPHAX ALPHAY CURPEAK ELOSS
     Parameters
-      fname: filename of Astra output
-      fout: filename of the output
-      nslice: number of slices
-      nc: number of slices to discard on the sides
+    ----------
+    inputName: string
+        filename of Astra output
+    outputName: string
+        filename of the output
+    nslice: int, optional
+        number of slices
+    nc: int, optional
+        number of slices to discard on both sides
+    
+    Returns
+    -------
+    slicePara: 2D array
+        2D array of the slice-wise parameters.
+    
+    Examples
+    --------
+    ```
+    # Convert astra distribution to slice-wise parameters with 100 slices
+    r = astra2slice('ast.0528.001', nslice = 100, nc = 2)
+    ```
     '''
     
     header = '? VERSION = 1.0\n'+\
     '? COLUMNS ZPOS GAMMA0 DELGAM EMITX EMITY BETAX BETAY XBEAM YBEAM PXBEAM PYBEAM ALPHAX ALPHAY CURPEAK ELOSS'
     
-    data = np.loadtxt(fname)
+    data = np.loadtxt(inputName)
     data[1:,2] += data[0,2]
     data[1:,5] += data[0,5]
     
@@ -248,10 +273,10 @@ def astra2slice(fname, fout = None, nslice = 100, nc = 9):
             r.append(tmp); #counts += 1; print(counts)
             
             
-    if fout is None:
-        fout = 'slice@'+fname+'.dat'
-    print('The distribution is saved to '+fout)
-    np.savetxt(fout, np.array(r), fmt = '%-15.6e', \
+    if outputName == None:
+        outputName = 'slice@'+fname+'.dat'
+    print('The distribution is saved to '+outputName)
+    np.savetxt(outputName, np.array(r), fmt = '%-15.6e', \
                header = header, comments='')
     return np.array(r)
 
@@ -293,79 +318,6 @@ def slice2hdf5(inputName = None, outputName = None, ext = '.h5'):
     
     return
 
-#%% Astra and Warp formats conversion
-def astra2warp(fname, fout = None, Q_coef = -1.0, High_res = True):
-    '''
-    The output file follows the format required for Warp simulation.
-    From left the right, the column are:
-      X Y Z UX UY UZ W, where Ux Uy Uz are dimentionless momentum, W is macro particle charge
-    Parameters
-      fname: filename of Astra output
-      fout: filename of the output
-      Q_coef: an coefficient to scale the bunch charge, default is -1.0
-    '''
-    data = np.loadtxt(fname)
-    data[1:,2] += data[0,2]
-    data[1:,5] += data[0,5]
-    
-    select = (data[:,9]>0); data = data[select]
-    data[:,3] = data[:,3]/g_mec2/1e6
-    data[:,4] = data[:,4]/g_mec2/1e6
-    data[:,5] = data[:,5]/g_mec2/1e6
-    
-    data[:,6] = data[:,7]*1e-9/g_qe*Q_coef # number of electrons for each macro particle
-    
-    if fout is None:
-        fout = fname+'.warp'
-    print('The distribution is saved to '+fout)
-    if High_res:
-        fmt = '%20.12E'
-    else:
-        fmt = '%14.6E'
-    np.savetxt(fout, data[:,0:7], fmt = fmt)
-    return data[:,0:7]
-
-def warp2astra(fname, fout = None, Run = 1, Q_coef = -1.0, ratio = 100):
-    '''
-    The output file follows the format required for Astra simulation.
-    Parameters
-      fname: filename of Warp output, which includes columns of X Y Z UX UY UZ W, where Ux Uy Uz are dimentionless momentum, W is macro particle charge
-      fout: filename of the output
-      Q_coef: an coefficient to scale the bunch charge, default is -1.0
-      ratio: a factor used to scale the position of electron bunch to be used in Astra file name
-    '''
-    
-    data = np.loadtxt(fname)
-    data[:,3:6] *= g_mec2*1e6
-    
-    z0 = weighted_mean(data[:,2], data[:,-1])
-    pz0 = weighted_mean(data[:,5], data[:,-1])
-    
-    data[:,2] -= z0
-    data[:,5] -= pz0; #print pz0; return
-    data[:,6] *= (-g_qe*1e9) # convert to nC
-    
-    nop = len(data)
-    d1 = np.zeros((nop+1, 10))
-    d1[0, 2] = z0
-    d1[0, 5] = pz0
-    
-    d1[1:,0:6] = data[:,0:6]
-    d1[1:,7] = data[:,6]
-    d1[:, -2] = 1
-    d1[:, -1] = 5
-    
-    if fout is None:
-        print('The current bunch center is at ', z0, ' meters')
-        fid = z0*ratio
-        while round(fid)<1:
-            fid *= 10
-        fid = round(fid)
-        fout = 'ast.%04d.%03d' % (fid, Run)
-    print('The distribution is saved to '+fout)
-    
-    np.savetxt(fout, d1, fmt = '%12.4E%12.4E%12.4E%12.4E%12.4E%12.4E%12.4E%12.4E%4d%4d')
-    return d1
 #%% Resample 6D particle distribution in such a way that every slice has the 
 #   same number of macro particles, as input for Genesis1.3 V4.
 #   This is a remake of the Genesis1.3 V4 C++ codes
@@ -391,7 +343,7 @@ def resampleParticles(inputBeamDist, mpart = 8192):
         px, py, gamma, respectively.
         
     Examples
-    -------
+    --------
     ```
     mpart = 4096
     beamdist0 = np.random.rand(4000, 6) # x, y, theta, px, py, gamma
@@ -479,7 +431,8 @@ def modulation1D(x, funcMod, args = (), centered = True, xc = None):
     xnew: 1D array-like
         The modulated dataset.
 
-    Examples:
+    Examples
+    --------
     ```
     x = np.random.rand(100000)
     funcMod = lambda x, k:np.sin(k*x)**2
@@ -554,10 +507,86 @@ def modulation2D(x, y, funcMod, args = (), centered = True, xc = None):
     xnew: 1D array-like
         The modulated dataset.
 
-    Examples:
+    Examples
+    --------
     ```
     
     ```
     '''
     # to be implemented
     return None
+
+
+#%% Astra and Warp formats conversion
+def astra2warp(fname, fout = None, Q_coef = -1.0, High_res = True):
+    '''
+    The output file follows the format required for Warp simulation.
+    From left the right, the column are:
+      X Y Z UX UY UZ W, where Ux Uy Uz are dimentionless momentum, W is macro particle charge
+    Parameters
+      fname: filename of Astra output
+      fout: filename of the output
+      Q_coef: an coefficient to scale the bunch charge, default is -1.0
+    '''
+    data = np.loadtxt(fname)
+    data[1:,2] += data[0,2]
+    data[1:,5] += data[0,5]
+    
+    select = (data[:,9]>0); data = data[select]
+    data[:,3] = data[:,3]/g_mec2/1e6
+    data[:,4] = data[:,4]/g_mec2/1e6
+    data[:,5] = data[:,5]/g_mec2/1e6
+    
+    data[:,6] = data[:,7]*1e-9/g_qe*Q_coef # number of electrons for each macro particle
+    
+    if fout is None:
+        fout = fname+'.warp'
+    print('The distribution is saved to '+fout)
+    if High_res:
+        fmt = '%20.12E'
+    else:
+        fmt = '%14.6E'
+    np.savetxt(fout, data[:,0:7], fmt = fmt)
+    return data[:,0:7]
+
+def warp2astra(fname, fout = None, Run = 1, Q_coef = -1.0, ratio = 100):
+    '''
+    The output file follows the format required for Astra simulation.
+    Parameters
+      fname: filename of Warp output, which includes columns of X Y Z UX UY UZ W, where Ux Uy Uz are dimentionless momentum, W is macro particle charge
+      fout: filename of the output
+      Q_coef: an coefficient to scale the bunch charge, default is -1.0
+      ratio: a factor used to scale the position of electron bunch to be used in Astra file name
+    '''
+    
+    data = np.loadtxt(fname)
+    data[:,3:6] *= g_mec2*1e6
+    
+    z0 = weighted_mean(data[:,2], data[:,-1])
+    pz0 = weighted_mean(data[:,5], data[:,-1])
+    
+    data[:,2] -= z0
+    data[:,5] -= pz0; #print pz0; return
+    data[:,6] *= (-g_qe*1e9) # convert to nC
+    
+    nop = len(data)
+    d1 = np.zeros((nop+1, 10))
+    d1[0, 2] = z0
+    d1[0, 5] = pz0
+    
+    d1[1:,0:6] = data[:,0:6]
+    d1[1:,7] = data[:,6]
+    d1[:, -2] = 1
+    d1[:, -1] = 5
+    
+    if fout is None:
+        print('The current bunch center is at ', z0, ' meters')
+        fid = z0*ratio
+        while round(fid)<1:
+            fid *= 10
+        fid = round(fid)
+        fout = 'ast.%04d.%03d' % (fid, Run)
+    print('The distribution is saved to '+fout)
+    
+    np.savetxt(fout, d1, fmt = '%12.4E%12.4E%12.4E%12.4E%12.4E%12.4E%12.4E%12.4E%4d%4d')
+    return d1
