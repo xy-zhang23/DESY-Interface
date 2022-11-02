@@ -37,7 +37,7 @@ def plot_config():
     from cycler import cycler
     from matplotlib.ticker import AutoMinorLocator
 
-    fsize = 12 # a quarter of the paper width: 20 pt; half of the paper width: 12
+    fsize = 14 # a quarter of the paper width: 20 pt; half of the paper width: 12
     font = {'size' : fsize, 'family' : 'serif'}
     color_cycle = ['r', 'b', 'g', 'c', 'm', 'y', 'k']
     linestyle_cycle = ['-', '--', '-.', ':', (0, (5, 2, 5, 2)), (0, (10, 2, 5, 2, 2, 2)), (0, (12, 2, 2, 2))]
@@ -237,7 +237,7 @@ try:
             stamp = '__%02d.%02d.%02d %02d:%02d:%02d__' % (today.day, today.month, today.year,
                                                            today.hour, today.minute, today.second)
         else:
-            stamp = '__%02d.%02d.%02d__%02d_%02d_%02d__' % (today.day, today.month, today.year,
+            timestamp = '__%02d.%02d.%02d__%02d_%02d_%02d__' % (today.day, today.month, today.year,
                                                                 today.hour, today.minute, today.second)
         return stamp
 except Exception as err:
