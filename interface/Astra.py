@@ -110,6 +110,7 @@ class Astra(Namelists):
         else:
             cmd1 = '''\n'''
         
-        job = QsubJob(command = command, echo = False)
+        #job = QsubJob(command = command, echo = False)
+        job = CondorJob(command = command, echo = False)
         job.create(jobName, inputName, direc, submit, cmd1 = cmd1, **kwargs)
         
