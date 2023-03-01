@@ -49,28 +49,29 @@ class CondorJob:
         else:
             _, jobBaseName, _ = fileparts(jobName)
         
-        con = '''\
-#!/bin/zsh
+        con1 = '''\
+#HTC condor job
+
+executable = /bin/zsh
+arguments = '''+jobBaseName+'''.sh
 
 output = '''+jobBaseName+'''.o
 error = '''+jobBaseName+'''.e
-#getenv = True
+
+getenv = True
 request_memory = 2G
 #request_cpus = 32
 
-#$ -l h_cpu=12:00:00
-#$ -P pitz
-##$ -R y
-
+queue 1
 '''
         
         chdir = '''cd '''+direc+'''
 '''
-        con += chdir
+        con2 = chdir
         
         if len(kwargs)>0:
             for _, cmd in kwargs.items():
-                con += cmd + '''
+                con2 += cmd + '''
 '''
         if self.echo:
             cmd = '''echo '''+baseName+ext+''' |'''+self.command
@@ -78,15 +79,21 @@ request_memory = 2G
             cmd = self.command+''' '''+baseName+ext
         cmd += ''' 2>&1 | tee '''+baseName+'''.log
 '''
-        con += cmd
+        con2 += cmd
+        
+	
+        subName = jobBaseName+'.submit'
+        ff = open(subName, 'w')
+        ff.write(con1)
+        ff.close()
         
         jobName = jobBaseName+'.sh'
         ff = open(jobName, 'w')
-        ff.write(con)
+        ff.write(con2)
         ff.close()
         
         if submit:
-            os.system('qsub '+jobName)
+            os.system('condor_submit '+subName)
             
         return    
 
