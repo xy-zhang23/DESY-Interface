@@ -1,4 +1,4 @@
-from .Plots import *
+from .Plot import *
 
 def nemixrms(x, xp, w = None):
     '''
@@ -36,17 +36,30 @@ class BeamDiagnostics:
         '''
         
         keys = ['avg_z', 'nemit_x', 'nemit_y', 'std_x', 'std_y', 'std_z', 
-                'Ekin', 'std_Ekin', 'nemit_z', 'Q_b', 'avg_x', 'avg_y', 
+                'Ekin', 'std_Ekin', 'nemit_z', 'Q_b',
+                'avg_x', 'avg_y', 
                 'alpha_x', 'beta_x', 'gamma_x', 'emit_x', 
                 'alpha_y', 'beta_y', 'gamma_y', 'emit_y',
-                'cor_Ekin', 'loss_cathode', 'loss_aperture', 
-                'FWHM', 'NoP', 'I1', 'I0', 'cov_xxp', 'cov_yyp', 
-                'std_xp', 'std_yp', 'std_Ek2']
+                'cor_Ekin',
+                'loss_cathode', 'loss_aperture', 
+                'FWHM', 'NoP', 
+                'I1', 'I0', 
+                'cov_xxp', 'cov_yyp', 'std_xp', 'std_yp', 
+                'std_Ek2']
         
         indices = np.arange(len(keys))
-        units = ['m', 'um', 'um', 'mm', 'mm', 'mm', 'MeV', 'keV', 'keV mm', 'C',
-                 'm', 'm', ' ', 'm', 'm^-1', 'm', ' ', 'm', 'm^-1', 'm', 'keV', ' ',
-                 ' ', 'mm', ' ', 'A', 'A', 'mmmrad', 'mmmrad', 'mrad', 'mrad', 'keV']
+        units = ['m', 'um', 'um', 'mm', 'mm', 'mm',
+                 'MeV', 'keV', 'keV mm', 'C',
+                 'm', 'm',
+                 ' ', 'm', 'm^-1', 'm', 
+                 ' ', 'm', 'm^-1', 'm', 
+                 'keV', 
+                 ' ', ' ',
+                 'mm', ' ', 
+                 'A', 'A', 
+                 'mmmrad', 'mmmrad', 'mrad', 'mrad', 
+                 'keV']
+        
         keyIndex = {}
         keyUnit = {}
         for i, key in enumerate(keys):
@@ -80,7 +93,7 @@ class BeamDiagnostics:
             self.diagnostics(**kwargs)
         else:
             self.x = np.zeros(len(self.keyIndex))
-
+            
     def __getitem__(self, key):
         return self.get(key)
     

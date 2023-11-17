@@ -1,0 +1,13 @@
+#HTC condor job
+
+executable = /bin/zsh
+arguments = Q-250.00pC-D-1.20mm-E1-57.55MV_m-phi1-0.00deg-E2-12.25MV_m-phi2-0.00deg-I-368.sh
+
+output = Q-250.00pC-D-1.20mm-E1-57.55MV_m-phi1-0.00deg-E2-12.25MV_m-phi2-0.00deg-I-368.o
+error = Q-250.00pC-D-1.20mm-E1-57.55MV_m-phi1-0.00deg-E2-12.25MV_m-phi2-0.00deg-I-368.e
+
+getenv = True
+request_memory = 2G
+#request_cpus = 32
+
+queue 1

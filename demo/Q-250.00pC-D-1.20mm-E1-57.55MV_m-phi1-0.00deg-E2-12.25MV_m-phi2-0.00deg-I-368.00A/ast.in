@@ -1,0 +1,62 @@
+&Newrun 
+ Run=1
+ Head='PITZ beam line simulation'
+ Distribution='beam.ini'
+ CathodeS=true
+ Auto_Phase=true
+ Track_All=true
+ check_ref_part=false
+ Lprompt=false
+ Max_step=200000
+&end
+
+&Charge 
+ LSPCH=true
+ Lmirror=true
+ Nrad=40
+ Nlong_in=50
+ N_min=50
+ Max_scale=0.05
+ Max_count=20
+&end
+
+&Cavity 
+ LEfield=true
+ File_Efield(1)='\\afs\ifh.de\group\pitz\data\lixiangk\work\sync\field-maps\gun51cavity.txt'
+ File_Efield(2)='\\afs\ifh.de\group\pitz\data\lixiangk\work\sync\field-maps\CDS14_15mm.txt'
+ MaxE(1)=57.55088
+ MaxE(2)=12.24552
+ C_pos(1)=0
+ C_pos(2)=2.675
+ Nue(1)=1.3
+ Nue(2)=1.3
+ Phi(1)=0
+ Phi(2)=0
+&end
+
+&Solenoid 
+ LBfield=true
+ File_Bfield(1)='\\afs\ifh.de\group\pitz\data\lixiangk\work\sync\field-maps\gunsolenoidsPITZ.txt'
+ MaxB(1)=0.2164212
+ S_pos(1)=0
+ S_xrot(1)=0
+ S_yrot(1)=0
+&end
+
+&Output 
+ Zstart=0
+ Zstop=5.28
+ Zemit=528
+ Zphase=1
+ RefS=true
+ EmitS=true
+ PhaseS=true
+ TrackS=false
+ LandFS=true
+ C_EmitS=true
+ LPROJECT_EMIT=true
+ LOCAL_EMIT=false
+ Screen(1)=2.455
+ Screen(2)=5.28
+&end
+

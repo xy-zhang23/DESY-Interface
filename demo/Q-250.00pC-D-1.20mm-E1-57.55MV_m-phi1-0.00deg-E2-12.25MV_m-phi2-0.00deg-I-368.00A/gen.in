@@ -1,0 +1,24 @@
+&Input 
+ FNAME='beam.ini'
+ IPart=200000
+ Species='electrons'
+ Q_total=-0.25
+ Ref_Ekin=0
+ LE=0.00055
+ dist_pz='i'
+ Dist_z='g'
+ sig_clock=0.002972399
+ Cathode=true
+ Dist_x='r'
+ sig_x=0.3
+ Dist_px='g'
+ Nemit_x=0
+ Dist_y='r'
+ sig_y=0.3
+ Dist_py='g'
+ Nemit_y=0
+ C_sig_x=0.8
+ C_sig_y=0.8
+ Lprompt=false
+&end
+

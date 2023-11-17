@@ -20,6 +20,83 @@ def fileparts(fullname):
     [name, ext] = os.path.splitext(name)
     return [path, name, ext]
 
+class CondorJob:
+    '''
+    Create a batch file to submit a job to the server by the `qsub` command.
+    Only tested in Zeuthen site.
+    '''
+    def __init__(self, command = 'astra', echo = False):
+        self.command = command
+        self.echo = echo
+            
+    def create(self, jobName = None, inputName = 'ast.in', direc = '.',
+               submit = False, **kwargs):
+        '''
+        Parameters
+          jobName: name of the job
+          inputName: input file name for e.g. `Astra` or `Generator`
+          direc: directory name to open before running the program
+          submit: if True, directly submit the job to the server
+          **kwargs: more command to run before the program
+        '''
+        
+        _, baseName, ext = fileparts(inputName)
+        if ext == '':
+            ext = '.in'
+            
+        if jobName == None:
+            jobBaseName = 'myjob@'+baseName
+        else:
+            _, jobBaseName, _ = fileparts(jobName)
+        
+        con1 = '''\
+#HTC condor job
+
+executable = /bin/zsh
+arguments = '''+jobBaseName+'''.sh
+
+output = '''+jobBaseName+'''.o
+error = '''+jobBaseName+'''.e
+
+getenv = True
+request_memory = 2G
+#request_cpus = 32
+
+queue 1
+'''
+        
+        chdir = '''cd '''+direc+'''
+'''
+        con2 = chdir
+        
+        if len(kwargs)>0:
+            for _, cmd in kwargs.items():
+                con2 += cmd + '''
+'''
+        if self.echo:
+            cmd = '''echo '''+baseName+ext+''' | '''+self.command
+        else:
+            cmd = self.command+''' '''+baseName+ext
+        cmd += ''' 2>&1 | tee '''+baseName+'''.log
+'''
+        con2 += cmd
+        
+	
+        subName = jobBaseName+'.submit'
+        ff = open(subName, 'w')
+        ff.write(con1)
+        ff.close()
+        
+        jobName = jobBaseName+'.sh'
+        ff = open(jobName, 'w')
+        ff.write(con2)
+        ff.close()
+        
+        if submit:
+            os.system('condor_submit '+subName)
+            
+        return    
+
 class QsubJob:
     '''
     Create a batch file to submit a job to the server by the `qsub` command.

@@ -5,8 +5,13 @@ Interfaces for Generator, Astra and Genesis version 2 and 4, and so on
 @author: lixiangk
 """
 
+import os
+os.environ['OPENBLAS_NUM_THREADS'] = '1'
+
 import numpy as np
-import subprocess
+#import subprocess
+
+from .Job import *
 
 try:
     from requests.structures import CaseInsensitiveDict
@@ -48,7 +53,7 @@ except Exception as err:
     ADict = CaseInsensitiveDict
     #ADict = dict
 
-from .Job import *
+
 
 def toStr(v):
     '''

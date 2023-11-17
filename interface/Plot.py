@@ -1,4 +1,4 @@
-from .Numeric import *
+from .Misc import *
 
 ### Generate 1D and 2D statistics from raw samples
 def hist_centered(x, bins = None, range = None, weights = None, **kwargs):

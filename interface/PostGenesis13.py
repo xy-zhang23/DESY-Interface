@@ -8,7 +8,7 @@ Created on Fri Jun 26 14:57:04 2020
 import h5py
 from numpy.fft import fftshift,fft
 
-from .Numeric import *
+from .Misc import *
 
 def calcSpectrum(amp, phase, lambda0 = 100e-6, sample = 1, freq0 = None):
     '''

@@ -8,7 +8,7 @@ Interfaces for Generator, Astra and Genesis version 2 and 4, and so on
 
 from .Namelists import *
 
-# 'Genesis2` also has only one `Namelist`, like Generator in Astra
+# 'Genesis2` has only one `Namelist`, like Generator in Astra
 class Genesis2(Namelist):
     starter = ' $'
     ending = ' $end'
@@ -64,14 +64,28 @@ class Genesis2(Namelist):
     
     def write(self, inputName = 'gene.in', case = ''):   
         super(Genesis2, self).write(inputName, case)
-        
+    
+    # Old Farm job submission system, not used any more
     def qsub(self, jobName = None, inputName = 'gene.in', direc = '.',
              submit = False, command = 'genesis', **kwargs):
         job = QsubJob(command = command, echo = True)
         job.create(jobName, inputName, direc, submit, **kwargs)
         
+    
+    def submit(self, jobName = None, inputName = 'gene.in',
+              direc = '.', submit = False, command = 'genesis', **kwargs):
+        '''
+        Write the batch file to the `filename`, which could be submitted to 
+        a server by "qsub filename". Only tested in Zeuthen site
+        '''
         
-# `Genesis4` has a list of `Namelist` as `Astra`, therefore just inherit from
+        #job = QsubJob(command = command, echo = False)
+        job = CondorJob(command = command, echo = True)
+        job.create(jobName, inputName, direc, submit, **kwargs)
+        
+
+
+# `Genesis4` has a list of `Namelist` likw `Astra`, therefore it just inherits from
 # the `Astra` class
 class Genesis4(Namelists):
     '''
@@ -101,6 +115,7 @@ class Genesis4(Namelists):
     def write(self, inputName = 'gene.in', case = ''):
         super(Genesis4, self).write(inputName, case)
     
+    # Old Farm job submission system, not used any more
     def qsub(self, jobName = None, inputName = 'gene.in', direc = '.',
              submit = False, command = 'gencore', 
              cmd1 = 'module add gnu openmpi phdf5/1.10.6', **kwargs):
@@ -114,3 +129,17 @@ class Genesis4(Namelists):
         
         job = SbatchJob(command = command, echo = False)
         job.create(jobName, inputName, direc, submit, cmd1 = cmd1, **kwargs)
+    
+    def submit(self, jobName = None, inputName = 'gene.in',
+              direc = '.', submit = False, command = 'gencore', 
+              cmd1 = 'module add gnu openmpi phdf5/1.10.6', **kwargs):
+        '''
+        Write the batch file to the `filename`, which could be submitted to 
+        a server by "qsub filename". Only tested in Zeuthen site
+        '''
+        
+        #job = QsubJob(command = command, echo = False)
+        job = CondorJob(command = command, echo = True)
+        job.create(jobName, inputName, direc, submit, cmd1 = cmd1, **kwargs)
+        
+    

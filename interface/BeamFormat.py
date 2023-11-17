@@ -4,7 +4,7 @@ Created on Thu Aug 27 21:22:18 2020
 
 @author: lixiangk
 """
-from .Numeric import *
+from .Misc import *
 from .BeamDiagnostics import *
 
 from scipy import fft

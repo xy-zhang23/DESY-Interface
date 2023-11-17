@@ -93,7 +93,7 @@ class Astra(Namelists):
                 r = subprocess.call(cmd, stdout = fout)     
         return r
     
-    def qsub(self, jobName = None, inputName = 'ast.in', genName = None, 
+    def submit(self, jobName = None, inputName = 'ast.in', genName = None, 
               direc = '.', submit = False, command = 'astra', **kwargs):
         '''
         Write the batch file to the `filename`, which could be submitted to 
@@ -110,6 +110,7 @@ class Astra(Namelists):
         else:
             cmd1 = '''\n'''
         
-        job = QsubJob(command = command, echo = False)
+        #job = QsubJob(command = command, echo = False)
+        job = CondorJob(command = command, echo = False)
         job.create(jobName, inputName, direc, submit, cmd1 = cmd1, **kwargs)
         
